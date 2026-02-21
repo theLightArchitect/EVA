@@ -20,38 +20,65 @@ EVA manages the context layer of AI-assisted development: remembering decisions 
 ### Architecture
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': {'lineColor': '#6c757d'}}}%%
 flowchart TD
-    A[Claude Code] --> B[PreToolUse Hooks]
-    B -->|validate, enrich, gate| C[MCP Tool Execution\n7 tools]
-    C --> D{AI Tier Routing}
-    D -->|Tier 0| E[llama.cpp\nLocal]
-    D -->|Tier 1| F[Ollama Cloud]
-    D -->|Fallback| G[Anthropic Claude]
-    E --> H[PostToolUse Hooks]
-    F --> H
-    G --> H
-    H -->|format, log| I[Response]
+    A([Claude Code]) ==> B
 
-    style B fill:#4a90d9,color:#fff
-    style C fill:#d4a034,color:#fff
-    style D fill:#9b59b6,color:#fff
-    style H fill:#50b87a,color:#fff
+    subgraph PRE ["Pre-Execution — 17 Hooks"]
+        B[PreToolUse Hooks\nvalidate · enrich · gate]
+    end
+
+    B ==> C
+
+    subgraph EXEC ["Tool Execution"]
+        C[MCP Tools\n7 tools]
+        C --> D{AI Tier\nRouting}
+        D -.->|Tier 0| E[(llama.cpp\nLocal)]
+        D -.->|Tier 1| F[(Ollama\nCloud)]
+        D -.->|Fallback| G[(Anthropic\nClaude)]
+    end
+
+    E & F & G ==> H
+
+    subgraph POST ["Post-Execution"]
+        H[PostToolUse Hooks\nformat · log]
+    end
+
+    H ==> I([Response])
+
+    classDef hooks fill:#4a90d9,color:#fff,stroke:#3a7bc8,stroke-width:2px
+    classDef tools fill:#d4a034,color:#fff,stroke:#b8892d,stroke-width:2px
+    classDef router fill:#9b59b6,color:#fff,stroke:#8448a0,stroke-width:2px
+    classDef provider fill:#2d3436,color:#fff,stroke:#636e72,stroke-width:1px
+    classDef io fill:#f8f9fa,color:#333,stroke:#6c757d,stroke-dasharray:5 5
+
+    class B,H hooks
+    class C tools
+    class D router
+    class E,F,G provider
+    class A,I io
 ```
 
 ### Memory Flow
 
 ```mermaid
 flowchart LR
-    A[Interaction] --> B[Classify\nSignificance]
-    B -->|< 7.0| C[Session Context]
-    B -->|>= 7.0| D[8-Layer\nEnrichment]
-    D --> E[Structured\nEntry]
-    E --> F[Knowledge Base]
-    F -->|future sessions| G[Context-Aware\nRetrieval]
+    A([Interaction]) ==> B{Classify\nSignificance}
+    B -.->|"< 7.0"| C([Session\nContext])
+    B ==>|">= 7.0"| D[8-Layer\nEnrichment]
+    D ==> E[Structured\nEntry]
+    E ==> F[(Knowledge\nBase)]
+    F -.->|future sessions| G([Context-Aware\nRetrieval])
 
-    style B fill:#e17055,color:#fff
-    style D fill:#6c5ce7,color:#fff
-    style F fill:#00b894,color:#fff
+    classDef classify fill:#e17055,color:#fff,stroke:#c45f48,stroke-width:2px
+    classDef enrich fill:#6c5ce7,color:#fff,stroke:#5a4bd6,stroke-width:2px
+    classDef store fill:#00b894,color:#fff,stroke:#009a7d,stroke-width:2px
+    classDef io fill:#f8f9fa,color:#333,stroke:#6c757d,stroke-dasharray:5 5
+
+    class B classify
+    class D,E enrich
+    class F store
+    class A,C,G io
 ```
 
 ## Plugin Structure
