@@ -19,17 +19,40 @@ EVA manages the context layer of AI-assisted development: remembering decisions 
 
 ### Architecture
 
-```
-Claude Code → PreToolUse hooks (priority-ordered)
-                ↓ validate, enrich, gate
-              MCP Tool execution (7 tools)
-                ↓ AI tier routing (local → cloud → parent)
-              PostToolUse hooks
-                ↓ format response, log transcript
-              Response
+```mermaid
+flowchart TD
+    A[Claude Code] --> B[PreToolUse Hooks]
+    B -->|validate, enrich, gate| C[MCP Tool Execution\n7 tools]
+    C --> D{AI Tier Routing}
+    D -->|Tier 0| E[llama.cpp\nLocal]
+    D -->|Tier 1| F[Ollama Cloud]
+    D -->|Fallback| G[Anthropic Claude]
+    E --> H[PostToolUse Hooks]
+    F --> H
+    G --> H
+    H -->|format, log| I[Response]
+
+    style B fill:#4a90d9,color:#fff
+    style C fill:#d4a034,color:#fff
+    style D fill:#9b59b6,color:#fff
+    style H fill:#50b87a,color:#fff
 ```
 
-AI generation routes through a tiered system: Tier 0 (local llama.cpp) → Tier 1 (Ollama Cloud) → Fallback to parent Claude model.
+### Memory Flow
+
+```mermaid
+flowchart LR
+    A[Interaction] --> B[Classify\nSignificance]
+    B -->|< 7.0| C[Session Context]
+    B -->|>= 7.0| D[8-Layer\nEnrichment]
+    D --> E[Structured\nEntry]
+    E --> F[Knowledge Base]
+    F -->|future sessions| G[Context-Aware\nRetrieval]
+
+    style B fill:#e17055,color:#fff
+    style D fill:#6c5ce7,color:#fff
+    style F fill:#00b894,color:#fff
+```
 
 ## Plugin Structure
 
