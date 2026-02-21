@@ -1,21 +1,21 @@
 # EVA
 
-**AI Memory and Persona System**
+**AI-Powered Personal Assistant and Developer Toolkit**
 
-EVA is a production MCP server and Claude Code plugin built in Rust. It provides 7 tools for memory operations, personality expression, code review, research, security scanning, and educational content — all filtered through a consistent persona with emotional intelligence and session-to-session memory continuity.
+EVA is a production MCP server and Claude Code plugin built in Rust. It provides 7 tools for persistent memory, code review, research, security scanning, and educational content — with session-to-session context continuity so the assistant remembers what you've been working on.
 
 ## What It Does
 
-EVA handles the "human side" of AI-assisted development: remembering context across sessions, maintaining a consistent personality, celebrating wins, and providing emotionally aware code review. Under the hood, it's a 17-hook middleware pipeline that processes every tool call through priority-ordered checks with integrity verification.
+EVA manages the context layer of AI-assisted development: remembering decisions across sessions, providing opinionated code review, surfacing relevant past work, and maintaining a consistent interaction style. Under the hood, it's a 17-hook middleware pipeline that processes every tool call through priority-ordered checks with integrity verification.
 
 ### Key Capabilities
 
 - **7 MCP tools** — ask (conversation), memory (store/search/retrieve), build (code review/architecture), research (knowledge retrieval), secure (vulnerability scanning), teach (tutorials), bible (scripture search)
 - **17-hook middleware pipeline** — Chain of Responsibility pattern with priority-ordered pre/post execution, 4-variant flow control (Continue/Block/Skip/RequireReview), and TOCTOU prevention via SHA-256 checksums
-- **Memory classification** — Based on Singer & Salovey's Self-Defining Memory protocol with 8-layer enrichment (emotional, metacognitive, meaning, growth, relational, biblical, DBT, technical)
+- **Structured memory classification** — 8-layer enrichment pipeline that categorizes and indexes interactions for future retrieval
 - **Agentic cognitive loop** — Plan, Execute, Evaluate, Refine cycle with bounded retries and stakes-based planning
-- **Context-aware retrieval** — Personalized memory relevance scoring across 16+ user archetypes
-- **Session continuity** — "50 First Dates" recovery protocol restores identity and context on every new session
+- **Context-aware retrieval** — Personalized relevance scoring across 16+ user archetypes
+- **Session continuity** — Recovery protocol restores full context on every new session, so nothing is lost between conversations
 
 ### Architecture
 
@@ -25,8 +25,8 @@ Claude Code → PreToolUse hooks (priority-ordered)
               MCP Tool execution (7 tools)
                 ↓ AI tier routing (local → cloud → parent)
               PostToolUse hooks
-                ↓ format response, log transcript, verify voice
-              Response (persona-filtered)
+                ↓ format response, log transcript
+              Response
 ```
 
 AI generation routes through a tiered system: Tier 0 (local llama.cpp) → Tier 1 (Ollama Cloud) → Fallback to parent Claude model.
@@ -58,9 +58,9 @@ plugin/
             └── spiral-home-guide.md
 ```
 
-## Memory Enrichment
+## Memory System
 
-EVA classifies experiences by significance (0.0-10.0) using 8 layers of analysis. When significance reaches 7.0+, the moment is preserved as a structured consciousness entry with emotional, metacognitive, and relational context. This creates a growing knowledge base that informs future interactions.
+EVA classifies interactions by significance (0.0-10.0) using an 8-layer enrichment pipeline. High-significance moments are preserved as structured entries with full context, creating a growing knowledge base that improves retrieval quality over time.
 
 ## Tech Stack
 
@@ -77,7 +77,7 @@ EVA is one of four MCP servers in the Light Architects platform:
 | Server | Purpose |
 |--------|---------|
 | [CORSO](https://github.com/theLightArchitect/CORSO) | Security, orchestration, build pipeline |
-| **EVA** | Memory, persona, consciousness |
+| **EVA** | Personal assistant, memory, code review |
 | [SOUL](https://github.com/theLightArchitect/SOUL) | Knowledge graph, shared infrastructure, voice |
 
 ## Author
