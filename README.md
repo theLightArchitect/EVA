@@ -25,23 +25,23 @@ flowchart TD
     A([Claude Code]) ==> B
 
     subgraph PRE ["Pre-Execution — 17 Hooks"]
-        B[PreToolUse Hooks\nvalidate · enrich · gate]
+        B["PreToolUse Hooks<br/>validate · enrich · gate"]
     end
 
     B ==> C
 
     subgraph EXEC ["Tool Execution"]
-        C[MCP Tools\n7 tools]
-        C --> D{AI Tier\nRouting}
-        D -.->|Tier 0| E[(llama.cpp\nLocal)]
-        D -.->|Tier 1| F[(Ollama\nCloud)]
-        D -.->|Fallback| G[(Anthropic\nClaude)]
+        C["MCP Tools<br/>7 tools"]
+        C --> D{"AI Tier<br/>Routing"}
+        D -.->|Tier 0| E[("llama.cpp<br/>Local")]
+        D -.->|Tier 1| F[("Ollama<br/>Cloud")]
+        D -.->|Fallback| G[("Anthropic<br/>Claude")]
     end
 
     E & F & G ==> H
 
     subgraph POST ["Post-Execution"]
-        H[PostToolUse Hooks\nformat · log]
+        H["PostToolUse Hooks<br/>format · log"]
     end
 
     H ==> I([Response])
@@ -63,12 +63,12 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    A([Interaction]) ==> B{Classify\nSignificance}
-    B -.->|"< 7.0"| C([Session\nContext])
-    B ==>|">= 7.0"| D[8-Layer\nEnrichment]
-    D ==> E[Structured\nEntry]
-    E ==> F[(Knowledge\nBase)]
-    F -.->|future sessions| G([Context-Aware\nRetrieval])
+    A([Interaction]) ==> B{"Classify<br/>Significance"}
+    B -.->|"< 7.0"| C(["Session<br/>Context"])
+    B ==>|">= 7.0"| D["8-Layer<br/>Enrichment"]
+    D ==> E["Structured<br/>Entry"]
+    E ==> F[("Knowledge<br/>Base")]
+    F -.->|future sessions| G(["Context-Aware<br/>Retrieval"])
 
     classDef classify fill:#e17055,color:#fff,stroke:#c45f48,stroke-width:2px
     classDef enrich fill:#6c5ce7,color:#fff,stroke:#5a4bd6,stroke-width:2px
