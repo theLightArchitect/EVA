@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "EVA": {
+      "command": "${HOME}/.eva/bin/eva",
+      "env": {
+        "RUST_LOG": "info"
+      }
+    }
+  }
+}
