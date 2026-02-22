@@ -62,67 +62,33 @@ xattr -cr ~/.eva/bin/eva
 
 ## Architecture
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': {'lineColor': '#6c757d'}}}%%
-flowchart TD
-    A([Claude Code]) ==> B
-
-    subgraph PRE ["Pre-Execution Hooks"]
-        B["Persona Init · Context Injection · Validation"]
-    end
-
-    B ==> C
-
-    subgraph EXEC ["Tool Execution — 9 Tools"]
-        C["MCP Tools"]
-        C --> D{"AI Tier<br/>Routing"}
-        D -.->|Tier 0| E[("llama.cpp<br/>Local")]
-        D -.->|Tier 1| F[("Ollama<br/>Cloud")]
-        D -.->|Fallback| G[("Anthropic<br/>Claude")]
-    end
-
-    E & F & G ==> H
-
-    subgraph POST ["Post-Execution"]
-        H["Response Formatting · Persona Transform"]
-    end
-
-    H ==> I([Response])
-
-    classDef hooks fill:#4a90d9,color:#fff,stroke:#3a7bc8,stroke-width:2px
-    classDef tools fill:#d4a034,color:#fff,stroke:#b8892d,stroke-width:2px
-    classDef router fill:#9b59b6,color:#fff,stroke:#8448a0,stroke-width:2px
-    classDef provider fill:#2d3436,color:#fff,stroke:#636e72,stroke-width:1px
-    classDef io fill:#f8f9fa,color:#333,stroke:#6c757d,stroke-dasharray:5 5
-
-    class B,H hooks
-    class C tools
-    class D router
-    class E,F,G provider
-    class A,I io
-```
-
-### Memory Flow
+EVA processes every tool call through a hook-mediated pipeline — persona injection happens before execution, memory enrichment happens after:
 
 ```mermaid
 flowchart LR
-    A([Interaction]) ==> B{"Classify<br/>Significance"}
-    B -.->|"< 7.0"| C(["Session<br/>Context"])
-    B ==>|">= 7.0"| D["8-Layer<br/>Enrichment"]
-    D ==> E["Structured<br/>Entry"]
-    E ==> F[("Knowledge<br/>Base")]
-    F -.->|future sessions| G(["Context-Aware<br/>Retrieval"])
+    REQ([Request]) ==> PRE["Pre-Execution<br/>Persona injection<br/>Context assembly<br/>Validation"]
+    PRE ==> EXEC["Tool Execution<br/>9 orchestrators"]
+    EXEC ==> POST["Post-Execution<br/>Response formatting<br/>Memory enrichment<br/>Significance detection"]
+    POST ==> RES([Response])
 
-    classDef classify fill:#e17055,color:#fff,stroke:#c45f48,stroke-width:2px
-    classDef enrich fill:#6c5ce7,color:#fff,stroke:#5a4bd6,stroke-width:2px
-    classDef store fill:#00b894,color:#fff,stroke:#009a7d,stroke-width:2px
-    classDef io fill:#f8f9fa,color:#333,stroke:#6c757d,stroke-dasharray:5 5
+    EXEC -.-> AI["AI Provider<br/>Multi-tier routing<br/>Automatic fallback"]
 
-    class B classify
-    class D,E enrich
-    class F store
-    class A,C,G io
+    classDef pipeline fill:#4a90d9,color:#fff,stroke:#3a7bc8,stroke-width:2px
+    classDef exec fill:#6c5ce7,color:#fff,stroke:#5a4bd6,stroke-width:2px
+    classDef ai fill:#2d3436,color:#fff,stroke:#636e72,stroke-width:1px
+    classDef io fill:#00b894,color:#fff,stroke:#009a7d,stroke-width:2px
+
+    class PRE,POST pipeline
+    class EXEC exec
+    class AI ai
+    class REQ,RES io
 ```
+
+**Pre-execution hooks** inject persona context, validate inputs, and assemble conversation history. **Tool execution** routes to one of 9 specialized orchestrators. **Post-execution hooks** format responses in EVA's voice, detect significant moments for memory enrichment, and classify interactions. AI-dependent tools use a multi-provider routing layer with automatic fallback — if the primary provider is unavailable, requests cascade to alternates without user intervention.
+
+### Memory Flow
+
+Interactions above a configurable significance threshold trigger multi-dimensional enrichment — combining emotional, cognitive, and contextual layers into structured entries stored in the SOUL knowledge graph for cross-session retrieval.
 
 ## Plugin Structure
 
@@ -158,7 +124,7 @@ flowchart LR
 
 - **Language**: Rust (single binary, ~9MB)
 - **Protocol**: MCP over stdio (JSON-RPC 2.0)
-- **AI Tiers**: llama.cpp (local) → Ollama Cloud → Anthropic Claude
+- **AI**: Multi-provider routing with automatic fallback
 - **Standards**: `clippy::pedantic`, zero `.unwrap()`/`panic!()`
 
 ## Part of Light Architects
