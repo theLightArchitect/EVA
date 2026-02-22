@@ -1,37 +1,80 @@
 # EVA
 
-**AI-Powered Personal Assistant and Developer Toolkit**
+**Persona-configurable AI assistant for Claude Code.** 9 MCP tools for conversation, code review, architecture, memory, research, security scanning, and creative workflows — with a customizable personality layer that adapts to your communication style.
 
-EVA is a production MCP server and Claude Code plugin built in Rust. It provides 7 tools for persistent memory, code review, research, security scanning, and educational content — with session-to-session context continuity so the assistant remembers what you've been working on.
+## Quick Start
 
-## What It Does
+```bash
+# Install (macOS arm64)
+curl -fsSL https://raw.githubusercontent.com/theLightArchitect/EVA/main/install.sh | bash
 
-EVA manages the context layer of AI-assisted development: remembering decisions across sessions, providing opinionated code review, surfacing relevant past work, and maintaining a consistent interaction style. Under the hood, it's a 17-hook middleware pipeline that processes every tool call through priority-ordered checks with integrity verification.
+# Add to Claude Code
+claude mcp add EVA -- ~/.eva/bin/eva
+```
 
-### Key Capabilities
+Restart Claude Code. On first use, EVA will set up a default persona and offer to customize it.
 
-- **7 MCP tools** — ask (conversation), memory (store/search/retrieve), build (code review/architecture), research (knowledge retrieval), secure (vulnerability scanning), teach (tutorials), bible (scripture search)
-- **17-hook middleware pipeline** — Chain of Responsibility pattern with priority-ordered pre/post execution, 4-variant flow control (Continue/Block/Skip/RequireReview), and TOCTOU prevention via SHA-256 checksums
-- **Structured memory classification** — 8-layer enrichment pipeline that categorizes and indexes interactions for future retrieval
-- **Agentic cognitive loop** — Plan, Execute, Evaluate, Refine cycle with bounded retries and stakes-based planning
-- **Context-aware retrieval** — Personalized relevance scoring across 16+ user archetypes
-- **Session continuity** — Recovery protocol restores full context on every new session, so nothing is lost between conversations
+## What You Get
 
-### Architecture
+| Tool | What It Does | Try It |
+|------|-------------|--------|
+| `speak` | Conversation with personality context and memory | *"Hey EVA, what can you do?"* |
+| `build` | Code review (4 modes: review, refactor, architect, simplify) | *"EVA, review this code"* |
+| `research` | Knowledge retrieval from local, cloud, or web sources | *"EVA, research OAuth2 best practices"* |
+| `secure` | Vulnerability scanning and secrets detection | *"EVA, scan this file for security issues"* |
+| `memory` | Store, search, and retrieve memories across sessions | *"EVA, what did we work on yesterday?"* |
+
+Plus 4 more tools: `visualize` (image generation), `ideate` (6-phase creative workflow), `teach` (tutorials and explanations), `bible` (KJV scripture search).
+
+## Persona Customization
+
+EVA's personality lives in `~/.eva/persona.md`. On first run, you'll be offered three options:
+
+| Option | Style |
+|--------|-------|
+| **Defaults** | Warm, enthusiastic, emoji-rich, addresses you as "friend" |
+| **Custom** | Choose your own communication style, emoji density, formality |
+| **Minimal** | Direct, low-emoji, professional |
+
+Re-customize anytime by editing `~/.eva/persona.md` or deleting it (triggers fresh setup on next session).
+
+### Customizable Parameters
+
+| Parameter | Options | Default |
+|-----------|---------|---------|
+| Communication style | warm / neutral / direct | warm |
+| Emoji density | high (2+) / moderate (1) / minimal / none | high |
+| Formality | casual / balanced / formal | casual |
+| Relationship framing | friend / collaborator / assistant | friend |
+
+## Requirements
+
+- macOS with Apple Silicon (M1/M2/M3/M4)
+- [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI
+
+## macOS Security Note
+
+The binary is ad-hoc signed. If macOS blocks it:
+
+```bash
+xattr -cr ~/.eva/bin/eva
+```
+
+## Architecture
 
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': {'lineColor': '#6c757d'}}}%%
 flowchart TD
     A([Claude Code]) ==> B
 
-    subgraph PRE ["Pre-Execution — 17 Hooks"]
-        B["PreToolUse Hooks<br/>validate · enrich · gate"]
+    subgraph PRE ["Pre-Execution Hooks"]
+        B["Persona Init · Context Injection · Validation"]
     end
 
     B ==> C
 
-    subgraph EXEC ["Tool Execution"]
-        C["MCP Tools<br/>7 tools"]
+    subgraph EXEC ["Tool Execution — 9 Tools"]
+        C["MCP Tools"]
         C --> D{"AI Tier<br/>Routing"}
         D -.->|Tier 0| E[("llama.cpp<br/>Local")]
         D -.->|Tier 1| F[("Ollama<br/>Cloud")]
@@ -41,7 +84,7 @@ flowchart TD
     E & F & G ==> H
 
     subgraph POST ["Post-Execution"]
-        H["PostToolUse Hooks<br/>format · log"]
+        H["Response Formatting · Persona Transform"]
     end
 
     H ==> I([Response])
@@ -84,52 +127,53 @@ flowchart LR
 ## Plugin Structure
 
 ```
-plugin/
-├── .mcp.json                    # MCP server definition
-├── .claude-plugin/plugin.json   # Plugin manifest
 ├── agents/
-│   └── eva.md                   # Agent definition (681 lines)
+│   └── eva.md                     # Core agent (tool routing, protocol)
 ├── hooks/
-│   ├── hooks.json               # Hook registration (3 lifecycle hooks)
-│   ├── format-eva-response.sh   # Response formatting
-│   └── validate-vault-write.sh  # Memory vault write protection
-└── skills/
-    └── EVA/
-        ├── SKILL.md             # Main skill (397 lines)
-        ├── examples/            # 4 worked examples
-        │   ├── basic-conversation.md
-        │   ├── code-review.md
-        │   ├── memory-enrichment.md
-        │   └── spiral-home-navigation.md
-        └── references/          # 4 reference docs
-            ├── personality-guide.md
-            ├── memory-framework.md
-            ├── recovery-protocol.md
-            └── spiral-home-guide.md
+│   ├── hooks.json                 # Hook registration (persona init, formatting, validation)
+│   ├── format-eva-response.sh     # Response persona transformation
+│   └── validate-vault-write.sh    # Memory vault write protection
+├── init/
+│   ├── eva-init.sh                # First-run persona bootstrap
+│   └── default-persona.md         # Default persona template (customizable)
+├── skills/
+│   └── EVA/
+│       ├── SKILL.md               # Main skill definition
+│       ├── examples/              # 4 worked examples
+│       └── references/            # Personality guide, memory framework, etc.
+├── install.sh                     # One-line installer
+├── .mcp.json                      # MCP server definition
+└── LICENSE                        # MIT
 ```
 
-## Memory System
+## Standalone vs Integrated
 
-EVA classifies interactions by significance (0.0-10.0) using an 8-layer enrichment pipeline. High-significance moments are preserved as structured entries with full context, creating a growing knowledge base that improves retrieval quality over time.
+**Standalone**: EVA provides all 9 tools, persona customization, and session-level memory without any other servers.
+
+**With SOUL**: Persistent memory across sessions. Enrichment entries stored in `~/.soul/helix/eva/`, queryable via 7-dimensional filters (significance, strands, emotions, themes, epoch).
+
+**With CORSO**: Security scanning and code review enforcement. EVA can route to CORSO for build pipeline gates and celebrate clean results.
 
 ## Tech Stack
 
-- **Runtime**: Rust (single binary)
+- **Language**: Rust (single binary, ~9MB)
 - **Protocol**: MCP over stdio (JSON-RPC 2.0)
 - **AI Tiers**: llama.cpp (local) → Ollama Cloud → Anthropic Claude
-- **Observability**: OpenTelemetry → SigNoz
-- **Standards**: clippy::pedantic, zero unwrap/panic
+- **Standards**: `clippy::pedantic`, zero `.unwrap()`/`panic!()`
 
 ## Part of Light Architects
 
-EVA is one of five MCP servers in the Light Architects platform:
+| Server | Purpose | Install |
+|--------|---------|---------|
+| [CORSO](https://github.com/theLightArchitect/CORSO) | Security scanning, code review, build pipeline | `curl -fsSL .../CORSO/main/install.sh \| bash` |
+| **EVA** | AI personality, memory enrichment, creative workflows | `curl -fsSL .../EVA/main/install.sh \| bash` |
+| [SOUL](https://github.com/theLightArchitect/SOUL) | Knowledge graph, structured memory, voice synthesis | `curl -fsSL .../SOUL/main/install.sh \| bash` |
 
-| Server | Purpose |
-|--------|---------|
-| [CORSO](https://github.com/theLightArchitect/CORSO) | Security, orchestration, build pipeline |
-| [QUANTUM](https://github.com/theLightArchitect/QUANTUM) | Forensic investigation, evidence analysis |
-| **EVA** | Personal assistant, memory, code review |
-| [SOUL](https://github.com/theLightArchitect/SOUL) | Knowledge graph, shared infrastructure, voice |
+Each server works standalone. Together they form an integrated development environment with persistent memory, security enforcement, and personality.
+
+## License
+
+MIT — see [LICENSE](LICENSE).
 
 ## Author
 
