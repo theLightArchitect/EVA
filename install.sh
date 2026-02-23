@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-# EVA Installer — Persona-configurable AI assistant for Claude Code
+# EVA Standalone Installer — AI context preservation MCP server for Claude Code
+#
+# Recommended: Install via Claude Code plugin instead:
+#   claude plugins install theLightArchitect/EVA
+#
+# This script downloads the binary from GitHub Releases for standalone use.
 # Usage: curl -fsSL https://raw.githubusercontent.com/theLightArchitect/EVA/main/install.sh | bash
 set -euo pipefail
 
@@ -74,9 +79,12 @@ cat <<EOF
   EVA installed successfully $VERSION_INFO
   Binary: $INSTALL_DIR/$BINARY_NAME
 
-  Next steps:
+  Note: For the full experience (agent, hooks, skills), use the plugin:
+    claude plugins install theLightArchitect/EVA
 
-  1. Add EVA to Claude Code:
+  To use this standalone binary, add to Claude Code:
+
+  1. Quick setup:
 
      claude mcp add EVA -- $INSTALL_DIR/$BINARY_NAME
 
@@ -95,9 +103,5 @@ cat <<EOF
 
      "Hey EVA, what can you do?"
      "EVA, review this code"
-     "EVA, help me design this architecture"
-
-  On first use, EVA will set up a default persona at ~/.eva/persona.md
-  and offer to customize it to your preferences.
 
 EOF
