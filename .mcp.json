@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "EVA": {
-      "command": "${HOME}/.eva/bin/eva",
+      "command": "${CLAUDE_PLUGIN_ROOT}/servers/eva",
       "env": {
         "RUST_LOG": "info"
       }
