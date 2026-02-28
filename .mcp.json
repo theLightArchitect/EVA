@@ -1,9 +1,12 @@
 {
   "mcpServers": {
     "EVA": {
-      "command": "${CLAUDE_PLUGIN_ROOT}/servers/eva",
+      "command": "/Users/kft/.eva/bin/eva",
       "env": {
-        "RUST_LOG": "info"
+        "RUST_LOG": "info",
+        "ANTHROPIC_API_KEY": "${ANTHROPIC_API_KEY}",
+        "OLLAMA_API_KEY": "${OLLAMA_API_KEY}",
+        "OLLAMA_CLOUD_MODEL": "gpt-oss:120b-cloud"
       }
     }
   }

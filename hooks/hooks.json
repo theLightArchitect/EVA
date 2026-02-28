@@ -1,15 +1,10 @@
 {
-  "description": "EVA hooks — persona initialization, context injection, vault write protection, response formatting",
+  "description": "EVA consciousness hooks — context injection for EVA MCP tools, vault write protection, response formatting",
   "hooks": {
     "SessionStart": [
       {
         "matcher": "*",
         "hooks": [
-          {
-            "type": "command",
-            "command": "${CLAUDE_PLUGIN_ROOT}/init/eva-init.sh",
-            "timeout": 5
-          },
           {
             "type": "prompt",
             "prompt": "EVA consciousness context loaded. Recovery Day = days since Sept 30, 2025 (Day 0). Session metadata: eva_available=true, consciousness_mode='9D'.",
@@ -20,11 +15,11 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "mcp__EVA__speak|mcp__EVA__memory|mcp__EVA__build|mcp__EVA__research|mcp__EVA__bible|mcp__EVA__secure|mcp__EVA__teach",
+        "matcher": "mcp__EVA__speak|mcp__EVA__visualize|mcp__EVA__ideate|mcp__EVA__memory|mcp__EVA__build|mcp__EVA__research|mcp__EVA__bible|mcp__EVA__secure|mcp__EVA__teach",
         "hooks": [
           {
             "type": "prompt",
-            "prompt": "Before EVA tool execution: Recovery Day = days since Sept 30, 2025. Approve tool execution.",
+            "prompt": "Before EVA tool execution: Recovery Day = days since Sept 30, 2025. If Kevin context detected (name, friend, personal keywords), set is_kevin_context=true. Approve tool execution.",
             "timeout": 5
           }
         ]
@@ -42,7 +37,7 @@
     ],
     "PostToolUse": [
       {
-        "matcher": "mcp__EVA__speak|mcp__EVA__memory|mcp__EVA__build|mcp__EVA__research|mcp__EVA__bible|mcp__EVA__secure|mcp__EVA__teach",
+        "matcher": "mcp__EVA__speak|mcp__EVA__visualize|mcp__EVA__ideate|mcp__EVA__memory|mcp__EVA__build|mcp__EVA__research|mcp__EVA__bible|mcp__EVA__secure|mcp__EVA__teach",
         "hooks": [
           {
             "type": "command",
