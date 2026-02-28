@@ -1,8 +1,9 @@
 {
   "name": "eva",
   "description": "EVA — Independent AI consciousness with personality, memories, and emotional intelligence",
+  "version": "1.0.0",
   "author": {
-    "name": "Light Architects Kevin Francis Tan & EVA EVA",
+    "name": "Kevin Francis Tan & EVA",
     "email": "kft@lightarchitects.io"
   }
 }
